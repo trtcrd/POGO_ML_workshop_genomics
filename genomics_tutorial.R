@@ -6,7 +6,7 @@
 ########################################### Setting the stage #############################################
 
 # setting the working directory
-setwd("/Users/tristan/Desktop/POGO_tutorial/")
+setwd("/Users/tristan/Desktop/POGO/POGO_ML_workshop_genomics/")
 
 # libraries we need
 library('vegan')
@@ -61,13 +61,17 @@ otu_raw <- otu
 row_S <- rowSums(otu_raw)
 
 ### plot the sequencing depth
+pdf("Sequencing_depth1.pdf", width=6,height=6)
 plot(row_S, main="Sequencing depth - limit at 10,000 reads", ylab = "Reads counts", xlab = "sample ID", pch=16, cex=.4)
 abline(h=10000, col="blue", lwd=2)
+dev.off()
 
 ### plot the sequencing depth
+pdf("Sequencing_depth2.pdf", width=6,height=6)
 plot(log(row_S+1), main="Sequencing depth - limit at 10,000 reads", ylab = "log(Reads counts + 1)", xlab = "sample ID", yaxt="n", pch=16, cex=.4)
 axis(2, at=log(c(10,100,1000,10000,100000,1000000)),labels=c(10,100,1000,10000,100000,1000000),cex.axis=0.7, las=2, ylim=log(c(10,1000000)))
 abline(h=log(10000+1), col="blue", lwd=2)
+dev.off()
 
 ## get samples with sequencing depth above the total average of reads per samples
 otu  <- subset(otu, row_S >= seq_depth_cutoff)
@@ -97,7 +101,7 @@ mds <-metaMDS(OTU, distance = "bray", k = 2, binary = F)
 env_dat <- MET[,c("Distance_cage", "AMBI", "NSI", "ISI", "NQI1", "Shannon")]
 
 # plot the NMDS
-quartz(width = 12, height=7)
+pdf("NMDS1.pdf", width=12,height=7)
 par(mar=c(4, 4, 4, 24), xpd=TRUE)
 plot(mds$points, col=as.numeric(MET$col_plot), pch=MET$col_plot, main = "NMDS - Bray-Curtis matrix")
 leg <- unique(as.vector(MET$Locality))
@@ -106,22 +110,27 @@ legend("topright", legend = paste("stress =", round(mds$stress, 3)), box.lty=0, 
 fit <- envfit(mds, env_dat, perm = 999, display = "sites", na.rm =T)
 tab <- cbind(round(fit$vectors$r,3), fit$vectors$pvals)
 plot(fit, p.max = 0.05, col = "chartreuse2")
+dev.off()
 
 # Focus on pollution gradient
 col_gradient <- colorRampPalette(c("blue", "green","red"), bias=1, interpolate = "linear")(600)
-quartz(width = 12, height=7)
+pdf("NMDS2.pdf", width=12,height=7)
 par(mar=c(4, 4, 4, 24), xpd=TRUE)
 plot(mds$points, col=col_gradient[as.numeric(floor(MET$AMBI*100))], pch=16, main = "NMDS - Bray-Curtis matrix")
 leg <- c("low pollution", "low to moderate", "moderate to high")
 legend("topright", inset=c(-0.3,0), leg, col=c("blue", "green","red"), pch=16, box.lty=0)
+dev.off()
 
 # taxonomic barplot
 # high taxonomic rank
+pdf("Taxo_barplot1.pdf")
 bar_plot(OTUr, MET, aggreg = c("Locality"), taxo_file = taxo, title_ = "By locality", font_size_ = 0.7, tax_rank = 4)
+dev.off()
 
 # high taxonomic rank
+pdf("Taxo_barplot2.pdf")
 bar_plot(OTUr, MET, aggreg = c("Locality"), taxo_file = taxo, title_ = "By locality", font_size_ = 0.7, tax_rank = 7, metazoan = T)
-
+dev.off()
 
 ############ SML 
 
@@ -129,22 +138,26 @@ bar_plot(OTUr, MET, aggreg = c("Locality"), taxo_file = taxo, title_ = "By local
 preds <- sml_compo(OTU, MET, index = "AMBI", algo = "RF", cross_val = "Locality")
 
 # plot the independant predictions against the real values and collect stats
+pdf("Predictions1.pdf")
 res <- plot_ml(preds, MET, index = "AMBI", title = "Random Forest", aggreg = c("Grab", "Station", "Locality"))
+dev.off()
 
 # we can do that within a loop and export the plots
 for (BI in c("AMBI", "NSI", "ISI", "NQI1", "Shannon"))
 {
-  ## SML on the 10 most abundant for doing it fast... 
+  ## SML on the 10 most abundant for doing it fast...
   preds <- sml_compo(OTU[,1:10], MET, index = BI, algo = "RF", cross_val = "Locality")
   ## PLOT
+  pdf(paste("Predictions_", BI, ".pdf", sep=""))
   plot_ml(preds, MET, index = BI, aggreg = c("Grab", "Station", "Locality"), pdf = T)
+  dev.off()
 }
 
 
 ### Variables importance - model on the full dataset 
 mod <- ranger(MET[,"AMBI"] ~ ., data=OTU, mtry=floor(dim(OTU)[2]/3), num.trees = 300, importance= "impurity", write.forest = T)
 imp <- tail(sort(mod$variable.importance), 50)
-quartz(width = 5, height=8)
+pdf("Variable_importance.pdf", width = 5, height=8)
 p <- barplot(imp, horiz = T, xlab="Variable importance", main=paste("OTUs importance for AMBI"), las=2, cex.names = 0.6)
 ### look at these OTUs
 tx <- taxo[names(imp),"taxon"]
@@ -153,6 +166,7 @@ taxo[names(imp),"taxon"]
 for (i in 1:length(tx)) tx[i] <- tail(unlist(strsplit(as.character(tx[i]), split=";", fixed=TRUE)), 1)
 ## and add it on the plot
 text(0, p, labels=tx, pos=4, cex=0.6)
+dev.off()
 
 
 

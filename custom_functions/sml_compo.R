@@ -9,10 +9,10 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
   ## we have to assign everything that ranger will use to the global environment (data.frame, intermediate object like mod...)
   ## even if something is created just before passing it to the function, it won't be found by ranger 
   ## maybe test creating an environment only for "inside" the sml_compo function
+  comp <- metadata
   assign("otu_table", otu_table, envir = .GlobalEnv)
   assign("comp", comp, envir = .GlobalEnv)
   assign("index", index, envir = .GlobalEnv)
-  comp <- metadata
 
   ## library
   require(ranger)

@@ -23,6 +23,7 @@ sudo rstudio-server restart
 # install R libs
 R -e 'install.packages("vegan", repos="https://stat.ethz.ch/CRAN/")'
 R -e 'install.packages("ranger", repos="https://stat.ethz.ch/CRAN/")'
+R -e 'install.packages("e1071", repos="https://stat.ethz.ch/CRAN/")'
 R -e 'install.packages("doMC", repos="https://stat.ethz.ch/CRAN/")'
 R -e 'install.packages("BBI", repos="https://stat.ethz.ch/CRAN/")'
 R -e 'install.packages("irr", repos="https://stat.ethz.ch/CRAN/")'
