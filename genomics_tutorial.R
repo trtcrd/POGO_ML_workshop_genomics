@@ -138,7 +138,7 @@ dev.off()
 preds <- sml_compo(OTU, MET, index = "AMBI", algo = "RF", cross_val = "Locality")
 
 # plot the independant predictions against the real values and collect stats
-pdf("Predictions1.pdf")
+pdf("Predictions1.pdf", width=8,height=5)
 res <- plot_ml(preds, MET, index = "AMBI", title = "Random Forest", aggreg = c("Grab", "Station", "Locality"))
 dev.off()
 
@@ -148,9 +148,8 @@ for (BI in c("AMBI", "NSI", "ISI", "NQI1", "Shannon"))
   ## SML on the 10 most abundant for doing it fast...
   preds <- sml_compo(OTU[,1:10], MET, index = BI, algo = "RF", cross_val = "Locality")
   ## PLOT
-  pdf(paste("Predictions_", BI, ".pdf", sep=""))
-  plot_ml(preds, MET, index = BI, aggreg = c("Grab", "Station", "Locality"), pdf = T)
-  dev.off()
+  plot_ml(preds, MET, index = BI, aggreg = c("Grab", "Station", "Locality"), pdf = T,
+          title = paste("Predictions_", BI, ".pdf", sep=""))
 }
 
 
