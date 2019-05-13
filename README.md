@@ -9,7 +9,7 @@ This tutorial will cover training and cross-validation of a random forest classi
 
 __The R script [genomics_tutorial.R](genomics_tutorial.R) covers Part 1 of the Tutorial.__
 
-You can read more about the analysed dataset in [Cordier et al. 2017](dx.doi.org/10.1021/acs.est.7b01518) and [an even newer one (Cordier et al. 2018)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12926).
+You can read more about the analysed dataset in [Cordier et al. 2017](dx.doi.org/10.1021/acs.est.7b01518) and [Cordier et al. 2018](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12926).
 
 
 ## Part 2 – Trait prediction of MAGs
