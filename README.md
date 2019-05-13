@@ -24,7 +24,6 @@ We will use two different tools for __predicting and analysing functional capabi
 
 To start the tutorial, connect to your AWS instance using an SSH enabled terminal (unless you are in Linux or OSX, you can use PuTTY, Cygwin or similar on Windows). You can see the DNS or IP in the same way as for Part 1. (for full login details right-click on the instance in the AWS EC2 console and select Connect, which will display something like `ssh -i my_aws_key.pem ubuntu@ec2-35-181-51-240.eu-west-3.compute.amazonaws.com`).
 
-
-Traitar uses __[support vector machines (SVMs)](https://en.wikipedia.org/wiki/Support_vector_machine)__, which are a class of algorithms using linear N-dimensional hyperplanes based on supervised training. They can also use a [kernel function](https://en.wikipedia.org/wiki/Kernel_method) or "data transformation" to be turned into non-linear methods. 
+__[Continue with Tutorial Part 2](Part2.md)__
 
 
