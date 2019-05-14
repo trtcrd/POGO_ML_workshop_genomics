@@ -1,11 +1,19 @@
 # Tutorial Part 2
 
-## Prediction of functional traits using Traitar
+## Table of Contents
+
+[Prediction of functional traits using Traitar](#TraitarIntro)
+	[1. Select 2 or 3 MAGs and prepare metadata](#Traitar1)
+	[2. Run Traitar](#Traitar2)
+	[3. Look at Traitar predictions](#Traitar3)
+[Prediction using a more general trait predictor (Farrell et al)](#Farrell)
+
+## Prediction of functional traits using Traitar <a name=TraitarIntro">
 
 Traitar uses __[support vector machines (SVMs)](https://en.wikipedia.org/wiki/Support_vector_machine)__, which are a class of algorithms using linear multidimensional hyperplanes based on supervised training. Though Traitar does not, SVMs can also use a [kernel function](https://en.wikipedia.org/wiki/Kernel_method), simply put data transformation, to be turned into non-linear methods. SVMs were trained using phenotype annotations from the [GIDEON database](https://doi.org/10.1186/1476-072X-4-10) based on the content of predicted [Pfam protein families](https://pfam.xfam.org/) of their genomes.
 
 
-### 1. Select 2 or 3 MAGs and prepare metadata
+### 1. Select 2 or 3 MAGs and prepare metadata <a name="Traitar1">
 
 Traitar is implemented in Python and has already been installed in the AMI used for the tutorial, along with its dependencies. Since it takes about 10 minutes per genome to run the Traitar prediction workflow, we will select only two or three of the nitrogen-fixing Tara Oceans MAGs for annotation. First, prepare a new directory for the tutorial, then download and expand the MAG sequence files into it:
 
@@ -21,7 +29,7 @@ The first step of Traitar is to predict protein-coding reading frames of the MAG
 `mkdir ~/Pfam`
 `sudo traitar pfam ~/Pfam`
 
-### 2. Run Traitar
+### 2. Run Traitar <a name="Traitar2">
 
 Now that you have selected some genomes to analyse, start the Traitar workflow with the metadata file you specified. We will run the job on four processes (or more, depending on what instance you spawned):
 
@@ -31,7 +39,7 @@ Now that you have selected some genomes to analyse, start the Traitar workflow w
 ..where ``sample_file`` is the metadata file you prepared and ``in_dir`` is the file containing your MAG sequences. This step will take about 10 minutes per genome, so it is a good time to grab a coffee, or read more about Traitar, MAGs, SVMs or something else.
 
 
-### 3. Look at Traitar predictions
+### 3. Look at Traitar predictions <a name="Traitar3">
 
 When Traitar has completed, copy the output directory, that we called "traitar", to your laptop using scp so that you can look at the graphics and output files generated:
 
@@ -47,7 +55,7 @@ For example, the MAG HBD-06, appears to be capable of denitrification in additio
 
 `traitar show 'Nitrite to gas'`
 
-## Prediction using a more general trait predictor (Farrell et al)
+## Prediction using a more general trait predictor (Farrell et al) <a name="Farrell">
 
 Unfortunately, key environmental traits such as Nitrogen fixation are missing from the trait list available. This is likely due to the bias of using a pathogen-focused database (GIDEON) for selecting and traniing trait models rather than something more generally applicable to microbial ecology. Luckily, there is a brand new method described in [this preprint](https://www.biorxiv.org/content/10.1101/307157v1) that used a bigger set of prokaryotic genomes, using the more extensive trait database [FAPROTAX](https://www.nature.com/articles/s41559-016-0015) for training. The classifier is similar to Traitar, except it uses [LASSO regression](https://en.wikipedia.org/wiki/Lasso_(statistics)) instead of SVMs. Though it is still experimental (in development), the implemented model has been installed on the AMI you are using so that we can test it.
 
