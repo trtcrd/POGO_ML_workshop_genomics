@@ -49,7 +49,9 @@ For example, the MAG HBD-06, appears to be capable of denitrification in additio
 
 ## Prediction using a more general trait predictor (Farrell et al)
 
-Unfortunately, key environmental traits such as Nitrogen fixation are missing from the trait list available. This is likely due to the bias of using a pathogen-focused database (GIDEON) for selecting and traniing trait models rather than something more generally applicable to microbial ecology. Luckily, there is a 
+Unfortunately, key environmental traits such as Nitrogen fixation are missing from the trait list available. This is likely due to the bias of using a pathogen-focused database (GIDEON) for selecting and traniing trait models rather than something more generally applicable to microbial ecology. Luckily, there is a brand new method described in [this preprint](https://www.biorxiv.org/content/10.1101/307157v1) that used a bigger set of prokaryotic genomes, using the more extensive trait database [FAPROTAX](https://www.nature.com/articles/s41559-016-0015) for training. The classifier is similar to Traitar, except it uses [LASSO regression](https://en.wikipedia.org/wiki/Lasso_(statistics)) instead of SVMs. Though it is still experimental (in development), the implemented model has been installed on the AMI you are using so that we can test it.
+
+To run ...
 
 
 
