@@ -26,11 +26,30 @@ The first step of Traitar is to predict protein-coding reading frames of the MAG
 Now that you have selected some genomes to analyse, start the Traitar workflow with the metadata file you specified. We will run the job on four processes (or more, depending on what instance you spawned):
 
 `cd ~/Trait_Prediction_Tutorial`
-`traitar phenotype <in_dir> <sample_file> from_nucleotides <out_dir> -c 4`
+`traitar phenotype <in_dir> <sample_file> from_nucleotides traitar -c 4`
 
-..where sample_file is the metadata file you prepared and in_dir is the file containing your MAG sequences. This step will take about 10 minutes per genome, so it is a good time to grab a coffee, or read more about Traitar, MAGs, SVMs or something else. When the workflow is completed, the output will be in out_dir.
+..where ``sample_file`` is the metadata file you prepared and ``in_dir`` is the file containing your MAG sequences. This step will take about 10 minutes per genome, so it is a good time to grab a coffee, or read more about Traitar, MAGs, SVMs or something else.
 
 
 ### 3. Look at Traitar predictions
+
+When Traitar has completed, copy the output directory, that we called "traitar", to your laptop using scp so that you can look at the graphics and output files generated:
+
+`scp  -r -i <my_aws_key.pem> ubuntu@<Your_AWS_Public_DNS>:Trait_Prediction_Tutorial/traitar` .
+
+The files in directory ``gene_prediction`` contain the predicted coding sequences by Prodigal, in FASTA and [General Feature Format (.gff)](https://en.wikipedia.org/wiki/General_feature_format) and those in ``annotation`` contain the identified PFAM hits based on the former. These were then used by Traitar's trained SVM model to predict traits using the default "pyhpat" model alone and with an additional model they call "PGL", taking into the evolutionary history of each strain in the training data, to model the loss and gain of new protein families / traits. These results are in ``phenotype_prediction``.
+
+The file ``predictions_majority-vote_combined.txt`` lists the predicted distribution of all modelled traits across the MAGs analysed. The results are also presented as a heatmap in ``heatmap_combined.pdf`` and a detailed list can be found in the .dat files for each MAG in the directory ``feat_gffs``.
+
+Can you find any traits that are present in only some of them? Have a look at the explanation of the treat name in [Table S1 of the paper](https://msystems.asm.org/content/1/6/e00101-16#DC1). You can compare any interesting predictions to [Supplemntary Table 6 in Delmont et al](https://static-content.springer.com/esm/art%3A10.1038%2Fs41564-018-0176-9/MediaObjects/41564_2018_176_MOESM8_ESM.xlsx).
+
+For example, the MAG HBD-06, appears to be capable of denitrification in addition to N fixation, which is also mentioned in the paper, consistent with the Traitar prediction "Nitrite to gas" for this MAG. To take a closer look at what protein families that were used to predict this feature, you can use:
+
+`traitar show 'Nitrite to gas'`
+
+## Prediction using a more general trait predictor (Farrell et al)
+
+Unfortunately, key environmental traits such as Nitrogen fixation are missing from the trait list available. This is likely due to the bias of using a pathogen-focused database (GIDEON) for selecting and traniing trait models rather than something more generally applicable to microbial ecology. Luckily, there is a 
+
 
 
