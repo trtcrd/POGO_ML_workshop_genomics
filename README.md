@@ -24,8 +24,8 @@ We will use two different tools for __predicting and analysing functional capabi
 
 To start the tutorial, connect to your AWS instance using an SSH enabled terminal (unless you are in Linux or OSX, you can use PuTTY, Cygwin or similar on Windows). You can see the DNS or IP in the same way as for Part 1. For full login details right-click on the instance in the AWS EC2 console and select Connect, which will display something like:
 
-```ssh -i my_aws_key.pem ubuntu@ec2-35-181-51-240.eu-west-3.compute.amazonaws.com
-```
+`ssh -i my_aws_key.pem ubuntu@ec2-35-181-51-240.eu-west-3.compute.amazonaws.com`
+
 
 __[Continue with Tutorial Part 2](Part2.md)__
 
