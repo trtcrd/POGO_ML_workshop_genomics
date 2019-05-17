@@ -15,7 +15,16 @@ wget https://www.dropbox.com/s/4ufmyg3r5n0gxw6/15_NITROGEN_FIXING_MAGs.tar.gz
 tar xvzf 15_NITROGEN_FIXING_MAGs.tar.gz
 ```
 
-The file ``Metadata-15-nitrogen-fixing-MAGs.txt`` in ``15_NITROGEN_FIXING_MAGs`` has information about the different MAGs. Have a look at it, and select two or three MAGs that you want to analyse using Traitar. Copy these to a new directory or simply delete the others, and make a metadata file in tab-separated text format for Traitar [as specified in its GitHub repo](https://github.com/hzi-bifo/traitar), with the first column giving the filename (must match the FASTA file) and the second giving a sample name. The headers must be ``sample_file_name`` and ``sample_name``.
+The file ``Metadata-15-nitrogen-fixing-MAGs.txt`` in ``15_NITROGEN_FIXING_MAGs`` has information about the different MAGs. Have a look at it, and select two or three MAGs that you want to analyse using Traitar. Copy these (or simply delete the others) to a new directory, and make a metadata file in tab-separated text format for Traitar [as specified in its GitHub repo (see below also)](https://github.com/hzi-bifo/traitar), with the first column giving the filename (must match the FASTA file) and the second giving a sample name. The headers must be ``sample_file_name`` and ``sample_name``.
+
+
+sample_file_name|sample_name|category
+--- | --- | --- 
+sample1_file_name|sample1_name|sample_category1
+sample2_file_name|sample2_name|sample_category2
+sample3_file_name|sample3_name|sample_category3
+...|...|...
+sampleN_file_name|sampleN_name|sample_categoryN
 
 The first step of Traitar is to predict protein-coding reading frames of the MAG sequences using [Prodigal](https://github.com/hyattpd/Prodigal). These are then aligned to the profile [Hidden Markov Models (HMMs)](https://en.wikipedia.org/wiki/Hidden_Markov_model), of Pfam, statistical models trained from multiple sequences of protein familieis. This is done using the program [HMMER](hmmer.org). Though HMMER has been pre-installed, we need to tell Traitar to download the Pfam database and to where, before it can be used:
 
