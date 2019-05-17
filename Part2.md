@@ -81,7 +81,7 @@ Copy the output file to your laptop and have a look at it. Nitrogen fixation is 
 
 Though GenePhene works with PFAM as input, it works better with the [KOs (KEGG Orthology terms)](https://www.genome.jp/kegg/ko.html) of the  database KEGG (Kyoto Encyclopedia of Genes and Genomes), which is very useful for functional annotation. Read through the information on the KEGG website about KEGGs briefly. However, alignment to KEGG would take too long, so we have made a file with ready formatted KOs for most of the 15 nitrogen fixing MAGs from Tara Oceans available. To run the program using this as input, use the same script as before, but without option "-g Pfam" since KOs is the default input:
 
-`~/genephene/genephene_genome_predict.py -i ~/genephene/precomputed/TaraMAGs_Nfix_KEGG.csv -o mostNFix_KO_GenePhene.csv`
+`python3 ~/genephene/genephene_genome_predict.py -i ~/genephene/precomputed/TaraMAGs_Nfix_KEGG.csv -o mostNFix_KO_GenePhene.csv`
 
 Looking in the output (``mostNFix_KO_GenePhene.csv``), can you find any traits that were predicted differently for the 2-3 MAGs you selected? How about nitrogen fixation?
 
