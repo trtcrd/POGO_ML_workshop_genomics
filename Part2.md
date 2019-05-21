@@ -36,7 +36,7 @@ sudo traitar pfam ~/Pfam
 
 Now that you have selected some genomes to analyse, start the Traitar workflow with the metadata file you specified. We will run the job on four processes (or more, depending on what instance you spawned):
 
-```cd ~/Trait_Prediction_Tutorial
+```cd ~/Trait_Pred_Tutorial
 traitar phenotype <in_dir> <sample_file> from_nucleotides TraitarPred -c 4
 ```
 
@@ -47,7 +47,7 @@ traitar phenotype <in_dir> <sample_file> from_nucleotides TraitarPred -c 4
 
 When Traitar has completed, copy the output directory, that we called ``TraitarPred``, to your laptop using scp so that you can look at the graphics and output files generated:
 
-`scp  -r -i <my_aws_key.pem> ubuntu@<Your_AWS_Public_DNS>:Trait_Prediction_Tutorial/TraitarPred .` 
+`scp  -r -i <my_aws_key.pem> ubuntu@<Your_AWS_Public_DNS>:Trait_Pred_Tutorial/TraitarPred .` 
 
 The files in directory ``gene_prediction`` contain the predicted coding sequences by Prodigal, in FASTA and [General Feature Format (.gff)](https://en.wikipedia.org/wiki/General_feature_format) and those in ``annotation`` contain the identified PFAM hits based on the former. These were then used by Traitar's trained SVM model to predict traits using the default "pyhpat" model alone and with an additional model they call "PGL", taking into the evolutionary history of each strain in the training data, to model the loss and gain of new protein families / traits. These results are in ``phenotype_prediction``.
 
