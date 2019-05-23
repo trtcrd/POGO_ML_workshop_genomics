@@ -170,5 +170,146 @@ dev.off()
 
 
 
+######### WORKSHOP day one: additional scripting.
+
+## let's make feature selection to keep only OTUs with good predictive potential and test if this improve performance. 
+## the random forest algorithm had this feature built-in
+
+## to test that (on only one farm in this exemple), we will make feature selection on a training set of 
+## of all the farm but Farm_1 and predict BI values on this hold-out farm. 
+TRAIN <- subset(OTU, MET$Locality != "Farm_1")
+TEST <- subset(OTU, MET$Locality == "Farm_1")
+
+MET_tr <- subset(MET, MET$Locality != "Farm_1")
+MET_te <- subset(MET, MET$Locality == "Farm_1")
+
+## let's train a model will all the features for the AMBI index
+mod_all_feature_AMBI <- ranger(MET_tr[,"AMBI"] ~ ., data=TRAIN, mtry=floor(dim(TRAIN)[2]/3), num.trees = 300, importance= "impurity", write.forest = T)
+## sort the OTUs by decreasing importance
+imp_AMBI <- sort(mod_all_feature_AMBI$variable.importance, decreasing = T)
+
+## same for NSI index
+mod_all_feature_NSI <- ranger(MET_tr[,"NSI"] ~ ., data=TRAIN, mtry=floor(dim(TRAIN)[2]/3), num.trees = 300, importance= "impurity", write.forest = T)
+## sort the OTUs by decreasing importance
+imp_NSI <- sort(mod_all_feature_NSI$variable.importance, decreasing = T)
+
+## and we will see what it the effect of the amount of feature we keep on the accuracy of predictions, from 10 to all OTUs
+feat <- c(10,100,250,500,1000, ncol(TRAIN))
+
+## collect the R2 and kappa statistics 
+R2 <- array(NA, c(2, length(feat)))
+colnames(R2) <- feat
+rownames(R2) <- c("AMBI", "NSI")
+
+KA <- array(NA, c(2, length(feat)))
+colnames(KA) <- feat
+rownames(KA) <- c("AMBI", "NSI")
+
+for (i in feat)
+{
+  # get the i most important OTUs
+  OTU_list_AMBI <- names(imp_AMBI[1:i])
+  OTU_list_NSI  <- names(imp_NSI[1:i])
+  otu_ambi <- TRAIN[,OTU_list_AMBI]
+  otu_nsi  <- TRAIN[,OTU_list_NSI]
+  # and keep those OTUs only in the TEST dataset
+  test_ambi <- TEST[,OTU_list_AMBI]
+  test_nsi  <- TEST[,OTU_list_NSI]
+  
+  ## SML
+  for (BI in c("AMBI", "NSI"))
+  {
+    ## train AMBI predictive model 
+    mod_AMBI <- ranger(MET_tr[,"AMBI"] ~ ., data=otu_ambi, mtry=floor(dim(otu_ambi)[2]/3), num.trees = 300, importance= "impurity", write.forest = T)
+    ## train NSI predictive model 
+    mod_NSI  <- ranger(MET_tr[,"NSI"] ~ ., data=otu_nsi, mtry=floor(dim(otu_nsi)[2]/3), num.trees = 300, importance= "impurity", write.forest = T)
+    
+    ## now make prediction on the hold-out farm
+    preds_ambi <- predict(mod_AMBI, test_ambi)
+    preds_nsi  <- predict(mod_NSI, test_nsi)
+    
+    ## get stats for each index
+    res <- plot_ml(data = preds_ambi$predictions, metadata = MET_te, index = BI,  title = paste("RF_", i, "features", sep=""),
+                   aggreg = c("Grab", "Station", "Locality"), taxo_group = paste("V1V2_", i, sep=""), pdf = T)
+    R2[paste(BI),paste(i)] <- res$R2
+    KA[paste(BI),paste(i)] <- res$KAP
+  }
+}
+
+
+### then plot 
+
+
+quartz(width = 5, height = 5)
+plot(as.numeric(R2_[1,]), col="blue", cex.axis=.8,pch=1,type="o", ylim=c(min(R2_), max(R2_)), xaxt="none", ylab = "R2", xlab="Features extracted", main="R2 - random forest")
+lines(as.numeric(R2_[2,]), type="o", pch=2, col="red")
+lines(as.numeric(R2_[3,]), type="o", pch=3, col="green")
+lines(as.numeric(R2_[4,]), type="o", pch=4, col="yellow")
+lines(as.numeric(R2_[5,]), type="o", pch=5, col="black")
+axis(1, at=1:ncol(R2_), cex.axis=.8,lab=gsub("F", "", colnames(R2_)))
+
+legend("topright", rownames(R2_), cex=0.7, col=c("blue","red", "green", "yellow", "black"), pch=1:5,bty = "n")
+
+
+
+
+
+
+
+
+## keeping only the best 50 OTUs
+TRAIN_feat_sel <- TRAIN[,names(imp)]
+
+predictions <- predict(mod, TEST)
+
+
+
+
+##
+
+formula <- as.formula(paste('get(nam_comp)[,index] ~ ' ,paste(dimnames(OTUtr)[[2]],collapse='+')))
+
+set.seed(1)
+assign(mod,neuralnet(formula, data = get(nam), hidden=10, err.fct="sse", algorithm = "rprop+"))
+
+## feature selection
+
+mod_ranger <- ranger(MET_tr[,"AMBI"] ~ ., data=TRAIN, 
+                     mtry=floor(dim(TRAIN)[2]/3), num.trees = 300, 
+                     importance= "impurity", write.forest = T)
+## which ones to keep?
+imp <- tail(sort(mod_ranger$variable.importance), 50)
+## keeping only the best 50 OTUs
+TRAIN_feat_sel <- TRAIN[,names(imp)]
+
+# and retraining the model with them only
+mod_features_sel <- ranger(MET_tr[,"AMBI"] ~ ., data=TRAIN_feat_sel, 
+                           mtry=floor(dim(TRAIN_feat_sel)[2]/3), num.trees = 300, 
+                           importance= "impurity", write.forest = T)
+
+## now make predictions on TEST
+
+preds_feat_sel <- predict(mod_features_sel, TEST[,names(imp)])
+
+preds_all_features <- predict(mod_ranger, TEST)
+
+## 
+plot_ml(preds_feat_sel$predictions, MET_te, index = "AMBI", aggreg = c("Grab", "Station", "Locality"), pdf = T,
+        title = paste("Predictions_feature_selected", "AMBI", ".pdf", sep=""))
+dev.off()
+
+plot_ml(preds_all_features$predictions, MET_te, index = "AMBI", aggreg = c("Grab", "Station", "Locality"), pdf = T,
+        title = paste("Predictions_all_feature_selected", "AMBI", ".pdf", sep=""))
+
+
+
+#### caret
+
+
+
+###
+mod <- randomForest(MET_tr[,"AMBI"] ~ ., data=TRAIN, 
+                    mtry=floor(dim(TRAIN)[2]/3), num.trees = 300)
+
 
 
