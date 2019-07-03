@@ -102,8 +102,8 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
     bad_ass <- length(subset(diff, diff !=0))
   }
   
-  ### if microAMBI
-  if (index == "microAMBI") 
+  ### if microgAMBI
+  else if (index == "microgAMBI") 
   {
     for (i in 1:length(combined1))
     {
@@ -129,7 +129,7 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
   
   
   ### if NSI
-  if (index == "NSI") 
+  else if (index == "NSI") 
   {
     for (i in 1:length(combined1))
     {
@@ -154,7 +154,7 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
   }
   
   ### if NQI1
-  if (index == "NQI1") 
+  else if (index == "NQI1") 
   {
     for (i in 1:length(combined1))
     {
@@ -180,7 +180,7 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
   
   
   ### if ISI
-  if (index == "ISI") 
+  else if (index == "ISI") 
   {
     for (i in 1:length(combined1))
     {
@@ -204,7 +204,7 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
     bad_ass <- length(subset(diff, diff !=0))
   }
   
-  if (index == "Shannon") 
+  else if (index == "Shannon") 
   {
     for (i in 1:length(combined1))
     {
@@ -228,6 +228,100 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
     bad_ass <- length(subset(diff, diff !=0))
   }
   
+  ### if PI
+  else if (index == "PI" | index == "PI5yAvg" | index == "PI10yAvg") 
+  {
+    for (i in 1:length(combined1))
+    {
+      if (combined1[i] < 1) comb1_disc[i] <- 1
+      else if (combined1[i] >= 1 && combined1[i] < 2) comb1_disc[i] <- 2
+      else if (combined1[i] >= 2 && combined1[i] < 3) comb1_disc[i] <- 3
+      else if (combined1[i] >= 3 && combined1[i] < 4) comb1_disc[i] <- 4
+      else if (combined1[i] >= 4 && combined1[i] <= 5) comb1_disc[i] <- 5
+      else if (combined1[i] >= 5) comb1_disc[i] <- 5  
+      
+      if (combined2[i] < 1) comb2_disc[i] <- 1
+      else if (combined2[i] >= 1 && combined2[i] < 2) comb2_disc[i] <- 2
+      else if (combined2[i] >= 2 && combined2[i] < 3) comb2_disc[i] <- 3
+      else if (combined2[i] >= 3 && combined2[i] < 4) comb2_disc[i] <- 4
+      else if (combined2[i] >= 4 && combined2[i] <= 5) comb2_disc[i] <- 5
+      else if (combined2[i] >= 5) comb2_disc[i] <- 5  
+    }
+    ## regression
+    diff <- comb1_disc-comb2_disc 
+    good_ass <- length(subset(diff, diff ==0))
+    bad_ass <- length(subset(diff, diff !=0))
+  }
+  
+  ### if OM
+  else if (index == "OM" | index == "OM5yAvg" | index == "OM10yAvg") 
+  {
+    for (i in 1:length(combined1))
+    {
+      if (combined1[i] < 1) comb1_disc[i] <- 1
+      else if (combined1[i] >= 1 && combined1[i] < 2) comb1_disc[i] <- 2
+      else if (combined1[i] >= 2 && combined1[i] < 4) comb1_disc[i] <- 3
+      else if (combined1[i] >= 4 && combined1[i] < 8) comb1_disc[i] <- 4
+      else if (combined1[i] >= 8 && combined1[i] <= 16) comb1_disc[i] <- 5
+      else if (combined1[i] >= 16) comb1_disc[i] <- 5  
+      
+      if (combined2[i] < 1) comb2_disc[i] <- 1
+      else if (combined2[i] >= 1 && combined2[i] < 2) comb2_disc[i] <- 2
+      else if (combined2[i] >= 2 && combined2[i] < 4) comb2_disc[i] <- 3
+      else if (combined2[i] >= 4 && combined2[i] < 8) comb2_disc[i] <- 4
+      else if (combined2[i] >= 8 && combined2[i] <= 16) comb2_disc[i] <- 5
+      else if (combined2[i] >= 16) comb2_disc[i] <- 5  
+    }
+    ## regression
+    diff <- comb1_disc-comb2_disc 
+    good_ass <- length(subset(diff, diff ==0))
+    bad_ass <- length(subset(diff, diff !=0))
+  }
+  
+  
+  ## Redox
+  else if (index == "Redox" | index == "Redox5yAvg" | index == "Redox10yAvg") {
+    
+    for (i in 1:length(combined1))
+    {
+      if (combined1[i] < -200) comb1_disc[i] <- 5
+      else if (combined1[i] >= -200 && combined1[i] < 0) comb1_disc[i] <- 4
+      else if (combined1[i] >= 0 && combined1[i] < 300) comb1_disc[i] <- 3
+      else if (combined1[i] >= 300 && combined1[i] < 500) comb1_disc[i] <- 2
+      else if (combined1[i] >= 500) comb1_disc[i] <- 1
+      
+      if (combined2[i] < -200) comb2_disc[i] <- 5
+      else if (combined2[i] >= -200 && combined2[i] < 0) comb2_disc[i] <- 4
+      else if (combined2[i] >= 0 && combined2[i] < 300) comb2_disc[i] <- 3
+      else if (combined2[i] >= 300 && combined2[i] < 500) comb2_disc[i] <- 2
+      else if (combined2[i] >= 500) comb2_disc[i] <- 1
+    }
+    ## regression
+    diff <- comb1_disc-comb2_disc 
+    good_ass <- length(subset(diff, diff ==0))
+    bad_ass <- length(subset(diff, diff !=0))
+  }
+  
+  ## Any other prediction
+  else {
+    
+    for (i in 1:length(combined1))
+    {
+      if (combined1[i] < -200) comb1_disc[i] <- 5
+      else if (combined1[i] >= -200 && combined1[i] < 0) comb1_disc[i] <- 4
+      else if (combined1[i] >= 0 && combined1[i] < 300) comb1_disc[i] <- 3
+      else if (combined1[i] >= 300 && combined1[i] < 500) comb1_disc[i] <- 2
+      else if (combined1[i] >= 500) comb1_disc[i] <- 1
+      
+      if (combined2[i] < -200) comb2_disc[i] <- 5
+      else if (combined2[i] >= -200 && combined2[i] < 0) comb2_disc[i] <- 4
+      else if (combined2[i] >= 0 && combined2[i] < 300) comb2_disc[i] <- 3
+      else if (combined2[i] >= 300 && combined2[i] < 500) comb2_disc[i] <- 2
+      else if (combined2[i] >= 500) comb2_disc[i] <- 1
+    }
+    ## regression
+    diff <- combined1-combined2
+  }
   
   ## classif 
   # diff <- combined1_rf-combined2_rf 
@@ -293,13 +387,13 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
   }
   
   
-  # AMBI
-  if (index == "microAMBI") 
+  # microgAMBI
+  else if (index == "microgAMBI") 
   {
     if(pdf)
     {
       dir.create(file.path(getwd(), taxo_group), showWarnings = F)
-      pdf(file = paste(taxo_group, "/", "microAMBI.pdf", sep=""), width = 6.6, height=4, useDingbats=F)
+      pdf(file = paste(taxo_group, "/", "microgAMBI.pdf", sep=""), width = 6.6, height=4, useDingbats=F)
     } else quartz(width = 6.6, height=4)
     #par(mfrow = c(1, 2))
     mat <- rbind(c(1,2,3), c(1,2,4))
@@ -321,7 +415,7 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
     
     #col2 <- col[as.integer(as.factor(farm_nam))]
     #col <-  comp_foram$Col_plot
-    plot(combined1 ~ combined2, xlim=c(0,6), ylim=c(0,6), pch =col, col= col,  xaxs="i",yaxs="i",cex=1, main = paste("microAMBI prediction /", title), xlab = "Morphology", ylab = "Molecular")
+    plot(combined1 ~ combined2, xlim=c(0,6), ylim=c(0,6), pch =col, col= col,  xaxs="i",yaxs="i",cex=1, main = paste("microgAMBI prediction /", title), xlab = "Morphology", ylab = "Molecular")
     
     arrows(combined2, combined1-combined1_sd, combined2, combined1+combined1_sd, length=0.01, angle=90, code=3, col=col)
     abline(mod, col="blue")
@@ -350,9 +444,8 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
     
   }
   
-  
   ##NSI
-  if (index == "NSI") 
+  else if (index == "NSI") 
   {
     if(pdf)
     {
@@ -403,10 +496,8 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
     if(pdf) dev.off()
   }
   
-  
-  
   ### NQI1
-  if (index == "NQI1") 
+  else if (index == "NQI1") 
   {
     if(pdf)
     {
@@ -459,10 +550,8 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
     if(pdf) dev.off()
   }
   
-  
-  
   #### ISI 
-  if (index == "ISI") 
+  else if (index == "ISI") 
   {
     if(pdf)
     {
@@ -516,7 +605,7 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
   }
   
   #### Shannon 
-  if (index == "Shannon") 
+  else if (index == "Shannon") 
   {
     if(pdf)
     {
@@ -569,7 +658,227 @@ plot_ml <- function(data, metadata, index, title = NULL, aggreg = NULL, pdf = F,
     if(pdf) dev.off()
   }
   
-  return(list("preds_cont" = combined1, "bi_values"= combined2, "preds_cat" = comb1_disc, "labels" = comb2_disc, "R2" = paste(round(summary(mod)$adj.r.squared, 3), sig, sep=""), "KAP" = paste(round(kap$value, 3), sigk, sep="")))
+  ## PI
+  else if (index == "PI" | index == "PI5yAvg" | index == "PI10yAvg") 
+  {
+    if(pdf)
+    {
+      dir.create(file.path(getwd(), taxo_group), showWarnings = F)
+      pdf(file = paste(taxo_group, "/", "PI.pdf", sep=""), width = 6.6, height=4, useDingbats=F)
+    } else quartz(width = 6.6, height=4)
+    #par(mfrow = c(1, 2))
+    mat <- rbind(c(1,2,3), c(1,2,4))
+    layout(mat, widths=c(2.5,1,1))
+    
+    mod <- lm (combined1 ~ combined2)
+    if (anova(mod)[["Pr(>F)"]][1] >= 0.05) sig <- "ns"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.05) sig <- "*"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.01) sig <- "**"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.001) sig <- "***"
+    
+    # kappa
+    kap <- kappa2(cbind(comb1_disc,comb2_disc), "squared", sort.levels=TRUE) 
+    if (is.na(kap$p.value) == T) kap$p.value <- 1
+    if (kap$p.value >= 0.05) sigk <- "ns"
+    if (kap$p.value < 0.05) sigk <- "*"
+    if (kap$p.value < 0.01) sigk <- "**"
+    if (kap$p.value < 0.001) sigk <- "***"
+    
+    #col2 <- col[as.integer(as.factor(farm_nam))]
+    #col <-  comp_foram$Col_plot
+    plot(combined1 ~ combined2, xlim=c(0,5), ylim=c(0,5), pch =col, col= col,  xaxs="i",yaxs="i",cex=1, 
+         main = paste("PI prediction /", title), xlab = "Pressure Index", ylab = "Molecular")
+    
+    arrows(combined2, combined1-combined1_sd, combined2, combined1+combined1_sd, length=0.01, angle=90, code=3, col=col)
+    abline(mod, col="blue")
+    rect(0,0,1,1,border="blue")
+    rect(1,1,2,2,border="green")
+    rect(2,2,3,3,border="yellow")
+    rect(3,3,4,4,border="orange")
+    rect(4,4,5,5,border="red")
+    text(5,0.5, pos=2,paste("R²=", round(summary(mod)$adj.r.squared, 3), sig, sep=""))
+    text(5,0.2, pos=2,paste("Kappa=", round(kap$value, 3), sigk, sep=""))
+    
+    # second plot for legend
+    par(mar=c(0,0,0,0), xpd=TRUE)
+    plot(0,type="n", axes=F, xlab="", ylab="")
+    legend("topleft", as.vector(unique(farm_nam)), col= unique(col), pch=unique(col), box.lty=0, inset=c(0,0.11))
+    
+    par(mar=c(3,1,5,3))
+    bplt <- barplot(prop.table(table(diff))*100, ylim=c(0,100), xlab="Status mismatch", ylab="Percentage", cex.names = 0.7, cex.axis=0.7,cex.lab=0.5)
+    text(x= bplt, y= prop.table(table(diff))*100 + 5, labels=paste("n=", table(diff), sep=""), xpd=TRUE, cex=0.7)
+    par(mar=c(5,1,2,3))
+    bxplt <- boxplot(combined1 - combined2, cex.names = 0.7, cex.axis=0.7,cex.lab=0.5)
+    text(x= 0.65, y= bxplt$stats, labels=paste(round(bxplt$stats, 2)), xpd=TRUE, cex=0.7)
+    points(1, mean(combined1 - combined2), col="red", pch=3)
+    text(x= 1.35, y= mean(combined1 - combined2), labels=paste(round(mean(combined1 - combined2), 2)), xpd=TRUE, cex=0.7, col="red")
+    if(pdf) dev.off()
+    
+  }
+  
+  ## OM
+  else if (index == "OM" | index == "OM5yAvg" | index == "OM10yAvg") 
+  {
+    if(pdf)
+    {
+      dir.create(file.path(getwd(), taxo_group), showWarnings = F)
+      pdf(file = paste(taxo_group, "/", "OM.pdf", sep=""), width = 6.6, height=4, useDingbats=F)
+    } else quartz(width = 6.6, height=4)
+    #par(mfrow = c(1, 2))
+    mat <- rbind(c(1,2,3), c(1,2,4))
+    layout(mat, widths=c(2.5,1,1))
+    
+    mod <- lm (combined1 ~ combined2)
+    if (anova(mod)[["Pr(>F)"]][1] >= 0.05) sig <- "ns"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.05) sig <- "*"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.01) sig <- "**"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.001) sig <- "***"
+    
+    # kappa
+    kap <- kappa2(cbind(comb1_disc,comb2_disc), "squared", sort.levels=TRUE) 
+    if (is.na(kap$p.value) == T) kap$p.value <- 1
+    if (kap$p.value >= 0.05) sigk <- "ns"
+    if (kap$p.value < 0.05) sigk <- "*"
+    if (kap$p.value < 0.01) sigk <- "**"
+    if (kap$p.value < 0.001) sigk <- "***"
+  
+    plot(combined1 ~ combined2, xlim=c(0,25), ylim=c(0,25), pch =col, col= col,  xaxs="i",yaxs="i",cex=1, 
+         main = paste("OM prediction /", title), xlab = "Organic material (%)", ylab = "Molecular")
+    
+    arrows(combined2, combined1-combined1_sd, combined2, combined1+combined1_sd, length=0.01, angle=90, code=3, col=col)
+    abline(mod, col="blue")
+    rect(0,0,1,1,border="blue")
+    rect(1,1,2,2,border="green")
+    rect(2,2,4,4,border="yellow")
+    rect(4,4,8,8,border="orange")
+    rect(8,8,25,25,border="red")
+    text(24.5,1.4, pos=2,paste("R²=", round(summary(mod)$adj.r.squared, 3), sig, sep=""))
+    text(24.5,0.5, pos=2,paste("Kappa=", round(kap$value, 3), sigk, sep=""))
+    
+    # second plot for legend
+    par(mar=c(0,0,0,0), xpd=TRUE)
+    plot(0,type="n", axes=F, xlab="", ylab="")
+    legend("topleft", as.vector(unique(farm_nam)), col= unique(col), pch=unique(col), box.lty=0, inset=c(0,0.11))
+    
+    par(mar=c(3,1,5,3))
+    bplt <- barplot(prop.table(table(diff))*100, ylim=c(0,100), xlab="Status mismatch", ylab="Percentage", cex.names = 0.7, cex.axis=0.7,cex.lab=0.5)
+    text(x= bplt, y= prop.table(table(diff))*100 + 5, labels=paste("n=", table(diff), sep=""), xpd=TRUE, cex=0.7)
+    par(mar=c(5,1,2,3))
+    bxplt <- boxplot(combined1 - combined2, cex.names = 0.7, cex.axis=0.7,cex.lab=0.5)
+    text(x= 0.65, y= bxplt$stats, labels=paste(round(bxplt$stats, 2)), xpd=TRUE, cex=0.7)
+    points(1, mean(combined1 - combined2), col="red", pch=3)
+    text(x= 1.35, y= mean(combined1 - combined2), labels=paste(round(mean(combined1 - combined2), 2)), xpd=TRUE, cex=0.7, col="red")
+    if(pdf) dev.off()
+    
+  }
+  
+  ## Redox
+  else if (index == "Redox" | index == "Redox5yAvg" | index == "Redox10yAvg") { 
+  
+    if(pdf)
+    {
+      dir.create(file.path(getwd(), taxo_group), showWarnings = F)
+      pdf(file = paste(taxo_group, "/", "Redox.pdf", sep=""), width = 6.6, height=4, useDingbats=F)
+    } else quartz(width = 6.6, height=4)
+    mat <- rbind(c(1,2,3), c(1,2,4))
+    layout(mat, widths=c(2.5,1,1))
+    
+    mod <- lm (combined1 ~ combined2)
+    if (anova(mod)[["Pr(>F)"]][1] >= 0.05) sig <- "ns"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.05) sig <- "*"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.01) sig <- "**"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.001) sig <- "***"
+    
+    # kappa
+    kap <- kappa2(cbind(comb1_disc,comb2_disc), "squared", sort.levels=TRUE) 
+    if (is.na(kap$p.value) == T) kap$p.value <- 1
+    if (kap$p.value >= 0.05) sigk <- "ns"
+    if (kap$p.value < 0.05) sigk <- "*"
+    if (kap$p.value < 0.01) sigk <- "**"
+    if (kap$p.value < 0.001) sigk <- "***"
+  
+    plot(combined1 ~ combined2, xlim=c(-300,700), ylim=c(-300,700), pch =col, col= col,  xaxs="i",yaxs="i",cex=1, 
+         main = paste("Redox potential /", title), xlab = "Redox potential", ylab = "Molecular")
+    
+    arrows(combined2, combined1-combined1_sd, combined2, combined1+combined1_sd, length=0.01, angle=90, code=3, col=col)
+    abline(mod, col="blue")
+    rect(-300,-300,-200,-200,border="red")
+    rect(-200,-200,0,0,border="orange")
+    rect(0,0,300,300,border="yellow")
+    rect(300,300,500,500,border="green")
+    rect(500,500,700,700,border="blue")
+    text(650,-200, pos=2,paste("R²=", round(summary(mod)$adj.r.squared, 3), sig, sep=""))
+    text(650,-250, pos=2,paste("Kappa=", round(kap$value, 3), sigk, sep=""))
+    
+    # second plot for legend
+    par(mar=c(0,0,0,0), xpd=TRUE)
+    plot(0,type="n", axes=F, xlab="", ylab="")
+    legend("topleft", as.vector(unique(farm_nam)), col= unique(col), pch=unique(col), box.lty=0, inset=c(0,0.11))
+    
+    par(mar=c(3,1,5,3))
+    bplt <- barplot(prop.table(table(diff))*100, ylim=c(0,100), xlab="Status mismatch", ylab="Percentage", cex.names = 0.7, cex.axis=0.7,cex.lab=0.5)
+    text(x= bplt, y= prop.table(table(diff))*100 + 5, labels=paste("n=", table(diff), sep=""), xpd=TRUE, cex=0.7)
+    par(mar=c(5,1,2,3))
+    bxplt <- boxplot(combined1 - combined2, cex.names = 0.7, cex.axis=0.7,cex.lab=0.5)
+    text(x= 0.65, y= bxplt$stats, labels=paste(round(bxplt$stats, 2)), xpd=TRUE, cex=0.7)
+    points(1, mean(combined1 - combined2), col="red", pch=3)
+    text(x= 1.35, y= mean(combined1 - combined2), labels=paste(round(mean(combined1 - combined2), 2)), xpd=TRUE, cex=0.7, col="red")
+    if(pdf) dev.off()
+    
+  }
+  
+  ## Any other parameter
+  else  { 
+    
+    if(pdf)
+    {
+      dir.create(file.path(getwd(), taxo_group), showWarnings = F)
+      pdf(file = paste(taxo_group, "/", index, ".pdf", sep=""), width = 6.6, height=4, useDingbats=F)
+    } else quartz(width = 6.6, height=4)
+    #par(mfrow = c(1, 2))
+    mat <- rbind(c(1,2,3), c(1,2,4))
+    layout(mat, widths=c(2.5,1,1))
+    
+    mod <- lm (combined1 ~ combined2)
+    if (anova(mod)[["Pr(>F)"]][1] >= 0.05) sig <- "ns"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.05) sig <- "*"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.01) sig <- "**"
+    if (anova(mod)[["Pr(>F)"]][1] < 0.001) sig <- "***"
+    
+    # kappa
+    kap =NA
+    sigk = NA
+    
+    minVal = min(c(combined1, combined2))*.09
+    maxVal = max(c(combined1, combined2))*1.1
+    
+    plot(combined1 ~ combined2, xlim=c(minVal,maxVal), ylim=c(minVal,maxVal), pch =col, col= col,  xaxs="i",yaxs="i",cex=1, 
+         main = paste("Redox potential /", title), xlab = index, ylab = "Molecular")
+    
+    arrows(combined2, combined1-combined1_sd, combined2, combined1+combined1_sd, length=0.01, angle=90, code=3, col=col)
+    abline(mod, col="blue")
+    
+    text(maxVal*.9,minVal*2, pos=2,paste("R²=", round(summary(mod)$adj.r.squared, 3), sig, sep=""))
+    
+    
+    # second plot for legend
+    par(mar=c(0,0,0,0), xpd=TRUE)
+    plot(0,type="n", axes=F, xlab="", ylab="")
+    legend("topleft", as.vector(unique(farm_nam)), col= unique(col), pch=unique(col), box.lty=0, inset=c(0,0.11))
+    
+    par(mar=c(3,1,5,3))
+    #bplt <- barplot(prop.table(table(diff))*100, ylim=c(0,100), xlab="Status mismatch", ylab="Percentage", cex.names = 0.7, cex.axis=0.7,cex.lab=0.5)
+    #text(x= bplt, y= prop.table(table(diff))*100 + 5, labels=paste("n=", table(diff), sep=""), xpd=TRUE, cex=0.7)
+    par(mar=c(5,1,2,3))
+    bxplt <- boxplot(combined1 - combined2, cex.names = 0.7, cex.axis=0.7,cex.lab=0.5)
+    text(x= 0.65, y= bxplt$stats, labels=paste(round(bxplt$stats, 2)), xpd=TRUE, cex=0.7)
+    points(1, mean(combined1 - combined2), col="red", pch=3)
+    text(x= 1.35, y= mean(combined1 - combined2), labels=paste(round(mean(combined1 - combined2), 2)), xpd=TRUE, cex=0.7, col="red")
+    if(pdf) dev.off()
+    
+  }
+  
+  return(list("preds_cont" = combined1, "bi_values"= combined2, "preds_cat" = NA, "labels" =NA, "R2" = paste(round(summary(mod)$adj.r.squared, 3), sig, sep=""), "KAP" = NA))
   
 }
   

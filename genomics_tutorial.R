@@ -6,7 +6,7 @@
 ########################################### Setting the stage #############################################
 
 # setting the working directory
-setwd("/Users/tristan/Desktop/POGO/POGO_ML_workshop_genomics/")
+setwd("/home/alanzen/kode/POGO_ML_workshop_genomics")
 
 # libraries we need
 library('vegan')
@@ -124,7 +124,7 @@ dev.off()
 # taxonomic barplot
 # high taxonomic rank
 pdf("Taxo_barplot1.pdf")
-bar_plot(OTUr, MET, aggreg = c("Locality"), taxo_file = taxo, title_ = "By locality", font_size_ = 0.7, tax_rank = 4)
+bar_plot(OTUr, MET, aggreg = c("Locality", "Station"), taxo_file = taxo, title_ = "By locality", font_size_ = 0.7, tax_rank = 4)
 dev.off()
 
 # high taxonomic rank

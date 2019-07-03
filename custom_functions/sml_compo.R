@@ -22,7 +22,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
   #require(mxnet)
   #require(xgboost)
   require(e1071)
-  #require(lars)
+  require(iwrlars)
   #require(neuralnet)
   
   ## random forest and support vector machines works, the others are to be done.. 
@@ -81,6 +81,8 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
     assign(nam, subset(OTU, COMP[,cross_val] !=i), envir = .GlobalEnv)
     assign(nam_comp, subset(COMP, COMP[,cross_val] !=i), envir = .GlobalEnv)
     
+    
+    
     ## if random forest 
     if (algo == "RF")
     {
@@ -103,7 +105,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - predict_tr_rf$predictions)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("num.tree effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -125,9 +127,86 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
         OTUtr <- get(nam)[,colSums(get(nam)) != 0]
         # remove those ones for the testing dataset also
         OTUte <- get(nam_t)[,colSums(get(nam)) != 0]
-
+        
         set.seed(1)
         assign(mod, ranger(get(nam_comp)[,index] ~ ., data=OTUtr, mtry=floor(dim(OTUtr)[2]/3), classification = classification, num.trees = 300, importance= "impurity", write.forest = T, min.node.size = minNode),envir = .GlobalEnv)
+        
+        #refer <- get(nam_comp)[,index]
+        #mod <- ranger(refer ~ ., data=get(nam), mtry=floor(dim(get(nam))[2]/3), classification = classification, num.trees = 300, importance= "impurity", write.forest = T)
+        #mod <- ranger(COMP[,"AMBI"] ~ ., data=OTU, mtry=floor(dim(OTU)[2]/3), classification = classification, num.trees = 300, importance= "impurity", write.forest = T)
+        #assign(mod, ranger(refer ~ ., data=get(nam), mtry=floor(dim(get(nam))[2]/3), classification = classification, num.trees = 300, importance= "impurity", write.forest = T),envir = .GlobalEnv)
+        #print("just after ranger")
+        
+        ## prediction for new data
+        predict_tr_rf <- predict(get(mod), OTUte)
+        combined1_rf <- c(combined1_rf,predict_tr_rf$predictions)
+        combined2_rf <- c(combined2_rf,get(nam_comp_t)[,index])
+      }
+    }
+    
+    ## if random forest with probability of split vector (very experimental)
+    if (algo == "RFProb")
+    {
+      ### if optim and check for overfit 
+      if (optim_overfit == T) 
+      {
+        ## gather RMSE for optim and check overfit
+        over <- array(NA, c(2,10))
+        rownames(over) <- c("training RMSE", "testing RMSE")
+        colnames(over) <- c(10,50,100,150,200,250,300,350,400,500)
+        for (opt in colnames(over))
+        {
+          mod <- paste("RF_farm_m", i,sep="_")
+          set.seed(1)
+          assign(mod,ranger(get(nam_comp)[,index] ~ ., data=get(nam), mtry=floor(dim(get(nam))[2]/3), 
+                            splitrule="extratrees",split.select.weights = splitProb,
+                            classification = classification, num.trees = as.numeric(opt), 
+                            importance= "impurity", write.forest = T))
+          
+          ## prediction for new data
+          predict_tr_rf <- predict(get(mod), get(nam_t))
+          ## paste in over the RMSE values
+          over["training RMSE",opt] <- get(mod)$prediction.error
+          over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - predict_tr_rf$predictions)^2))
+        }
+        ### then get the minimum testing RMSE to get the optim num.tree param
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
+        print("num.tree effect on testing RMSE")
+        print(over)
+        print(paste("Using: ", best_over))
+        # maybe export a plot and curves for overfitting check...
+        mod <- paste("RF_farm_m", i,sep="_")
+        set.seed(1)
+        assign(mod,ranger(get(nam_comp)[,index] ~ ., data=get(nam), 
+                          mtry=floor(dim(get(nam))[2]/3), 
+                          splitrule="extratrees",split.select.weights = splitProb,
+                          classification = classification, num.trees = best_over, 
+                          importance= "impurity", write.forest = T))
+        ## prediction for new data
+        predict_tr_rf <- predict(get(mod), get(nam_t))
+        combined1_rf <- c(combined1_rf,predict_tr_rf$predictions)
+        combined2_rf <- c(combined2_rf,get(nam_comp_t)[,index])
+      } else 
+      {
+        # ## now the fitting, random forest with Ranger package with default mtry (1/3) for regression according to Breiman
+        # similar here the mod objet has to be in the global env. to be fetchable afterwards
+        assign("mod", paste("RF_farm_m", i,sep="_"), envir = .GlobalEnv)
+        
+        ## removing empty OTUs
+        OTUtr <- get(nam)[,colSums(get(nam)) != 0]
+        # remove those ones for the testing dataset also
+        OTUte <- get(nam_t)[,colSums(get(nam)) != 0]
+        
+        set.seed(1)
+        notus = dim(OTUtr)[2]
+        splitProb = c(rep(1/notus,notus-1),1)
+        
+        assign(mod, ranger(get(nam_comp)[,index] ~ ., data=OTUtr, 
+                           mtry=floor(dim(OTUtr)[2]/3), 
+                           splitrule="extratrees",split.select.weights = splitProb,
+                           classification = classification, num.trees = 300, 
+                           importance= "impurity", write.forest = T, 
+                           min.node.size = minNode),envir = .GlobalEnv)
         
         #refer <- get(nam_comp)[,index]
         #mod <- ranger(refer ~ ., data=get(nam), mtry=floor(dim(get(nam))[2]/3), classification = classification, num.trees = 300, importance= "impurity", write.forest = T)
@@ -164,7 +243,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - predict_tr_rf$predictions)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("num.tree effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -219,7 +298,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - predict_tr_rf$predictions)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("num.tree effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -293,7 +372,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - predict_tr_rf$predictions)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("num.tree effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -341,7 +420,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - preds)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("num.round effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -415,7 +494,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - predict_tr_sm)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("rlen effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -488,7 +567,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - preds)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("num.round effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -536,7 +615,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - preds)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("num.round effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -594,7 +673,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
           over["testing RMSE",opt] <- sqrt(mean((get(nam_comp_t)[,index] - preds)^2))
         }
         ### then get the minimum testing RMSE to get the optim num.tree param
-        best_over <- as.numeric(attributes(which.min(over["testing RMSE",]))$names)
+        best_over <- as.numeric(attributes(which.min(over["training RMSE",]))$names)
         print("num.round effect on testing RMSE")
         print(over)
         print(paste("Using: ", best_over))
@@ -641,8 +720,7 @@ sml_compo <- function(otu_table, metadata, index, algo, optim_overfit = F, class
     cpt <- cpt+1
   }
   
-  if (algo =="RF") return(combined1_rf)
-  if (algo =="RF_bc") return(combined1_rf)
+  if (algo =="RF" | algo == "RF_bc" | algo == "RFProb") return(combined1_rf)
   if (algo =="SOM") return(combined1_sm)
   if (algo =="DL") return(combined1_dn)
   if (algo =="SVM") return(combined1_sv)
