@@ -170,5 +170,72 @@ dev.off()
 
 
 
+######### WORKSHOP day one: additional scripting.
+
+## let's make feature selection to keep only OTUs with good predictive potential and test if this improve performance. 
+## the random forest algorithm had this feature built-in
+
+## to test that (on only one farm in this exemple), we will make feature selection on a training set of 
+## of all the farm but Farm_1 and predict BI values on this hold-out farm. 
+TRAIN <- subset(OTU, MET$Locality != "Farm_1")
+TEST <- subset(OTU, MET$Locality == "Farm_1")
+
+MET_tr <- subset(MET, MET$Locality != "Farm_1")
+MET_te <- subset(MET, MET$Locality == "Farm_1")
+
+## let's train a model will all the features for the AMBI index
+mod_all_feature <- ranger(MET_tr[,"AMBI"] ~ ., data=TRAIN, mtry=floor(dim(TRAIN)[2]/3), num.trees = 300, importance= "impurity", write.forest = T)
+## sort the OTUs by decreasing importance
+imp <- sort(mod_all_feature$variable.importance, decreasing = T)
+
+## and we will see what it the effect of the amount of feature we keep on the accuracy of predictions, from 10 to all OTUs
+feat <- c(10,20,30,40,50,100,250,500,1000, ncol(TRAIN))
+
+## collect the R2 and kappa statistics 
+output <- array(NA, c(2, length(feat)))
+colnames(output) <- feat
+rownames(output) <- c("R2", "KAPPA")
+
+
+## 
+for (i in feat)
+{
+  # get the i most important OTUs
+  OTU_list <- names(imp[1:i])
+  train_reduced <- TRAIN[,OTU_list]
+  # and keep those OTUs only in the TEST dataset
+  test_reduced <- TEST[,OTU_list]
+  
+  ## train AMBI predictive model 
+  mod <- ranger(MET_tr[,"AMBI"] ~ ., data=train_reduced, mtry=floor(dim(train_reduced)[2]/3), num.trees = 300, importance= "impurity", write.forest = T)
+
+  ## now make prediction on the hold-out farm
+  preds <- predict(mod, test_reduced)
+  
+  ## get stats for each index
+  stats <- plot_ml(data = preds$predictions, metadata = MET_te, index = "AMBI",  title = paste("RF_", i, "features", sep=""),
+                   aggreg = c("Grab", "Station", "Locality"), taxo_group = paste("V1V2_", i, sep=""), pdf = T)
+  output["R2",paste(i)] <- stats$R2
+  output["KAPPA",paste(i)] <- stats$KAP
+}
+
+
+### then plot the accuracy as funciton of extracted feature
+
+# remove the '*' from the output file
+output[1,] <- as.numeric(gsub('*', '', output[1,], fixed = T))
+output[2,] <- as.numeric(gsub('*', '', output[2,], fixed = T))
+# and export as pdf
+pdf("Features_extract.pdf", width = 5, height=5)
+plot(output[1,], col="blue", cex.axis=.8,pch=1,type="o", ylim=as.numeric(c(min(output), max(output))), xaxt="none", ylab = "R2 - KAPPA", 
+     xlab="Features extracted", main="Accuracy as function of extracted feature")
+lines(as.numeric(output[2,]), type="o", pch=2, col="red")
+axis(1, at=1:ncol(output), cex.axis=.8,lab=colnames(output))
+legend("bottomright", rownames(output), cex=0.7, col=c("blue","red"), pch=1:2,bty = "n")
+dev.off()
+
+
+
+
 
 
