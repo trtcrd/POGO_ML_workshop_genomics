@@ -6,7 +6,7 @@
 ########################################### Setting the stage #############################################
 
 # setting the working directory
-setwd("/home/alanzen/kode/POGO_ML_workshop_genomics")
+setwd("/path/to/your/folder/POGO_ML_workshop_genomics")
 
 # libraries we need
 library('vegan')
