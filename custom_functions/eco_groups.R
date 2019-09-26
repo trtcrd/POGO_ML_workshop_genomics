@@ -73,7 +73,7 @@ getSyn= function(bi){
   
   if (!bi %in% row.names(ECO_GROUPS)) {
     if (bi %in% row.names(SYNONYMS)) {
-      return(as.character(rSYNONYMS[bi,1]))
+      return(as.character(SYNONYMS[bi,1]))
     } else {
       return(NA)
     }
