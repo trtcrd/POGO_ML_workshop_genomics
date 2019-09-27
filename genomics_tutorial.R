@@ -20,7 +20,7 @@ registerDoMC(cores = detectCores())
 
 # customs functions
 source("custom_functions/sml_compo.R")
-source("custom_functions/plot_ml.R")
+source("custom_functions/ec_and_plot.R")
 source("custom_functions/bar_plot.R")
 
 
